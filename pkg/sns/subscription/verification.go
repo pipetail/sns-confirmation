@@ -66,8 +66,8 @@ func ValidateURLRegions(input string, regions []string) error {
 		return fmt.Errorf("url does not contain required sns part")
 	}
 
-	if util.Contains(regions, hostnameParts[1]) {
-		return fmt.Errorf("url does not contain allowed region")
+	if !util.Contains(regions, hostnameParts[1]) {
+		return fmt.Errorf("url does not contain allowed region: %s vs %v", hostnameParts[1], regions)
 	}
 
 	if hostnameParts[2] != "amazonaws" && hostnameParts[3] != "com" {
