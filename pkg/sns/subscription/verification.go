@@ -55,12 +55,12 @@ func Verify(client http.Client, url string, code int) error {
 }
 
 func ValidateURLRegions(input string, regions []string) error {
-	url, err := url.Parse(input)
+	u, err := url.Parse(input)
 	if err != nil {
 		return fmt.Errorf("could not parse URL: %s", err)
 	}
 
-	hostnameParts := strings.Split(url.Hostname(), ".")
+	hostnameParts := strings.Split(u.Hostname(), ".")
 
 	if hostnameParts[0] != "sns" {
 		return fmt.Errorf("url does not contain required sns part")
@@ -77,6 +77,41 @@ func ValidateURLRegions(input string, regions []string) error {
 	return nil
 }
 
-// TODO: add validation for AWS accounts
-// TODO: add validation for SNS ARNs
-// TODO: add common validation function
+func ValidateURLAccounts(input string, accounts []string) error {
+	u, err := url.Parse(input)
+	if err != nil {
+		return fmt.Errorf("could not parse URL: %s", err)
+	}
+
+	q, err := url.ParseQuery(u.RawQuery)
+	if err != nil {
+		return fmt.Errorf("could not parse query string: %s", err)
+	}
+
+	topicArn := q.Get("TopicArn")
+	if topicArn == "" {
+		return fmt.Errorf("topicArn can' be empty")
+	}
+
+	arnParts := strings.Split(topicArn, ":")
+
+	if !util.Contains(accounts, arnParts[4]) {
+		return fmt.Errorf("arn does not contain allowed accounts: %s vs %v", arnParts[4], accounts)
+	}
+
+	return nil
+}
+
+func ValidateURL(input string, regions []string, accounts []string) error {
+	err := ValidateURLRegions(input, regions)
+	if err != nil {
+		return fmt.Errorf("could not validate regions: %s", err)
+	}
+
+	err = ValidateURLAccounts(input, accounts)
+	if err != nil {
+		return fmt.Errorf("could not validate accounts: %s", err)
+	}
+
+	return nil
+}

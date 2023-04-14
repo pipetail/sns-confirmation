@@ -22,7 +22,7 @@ func DefaultHandler(cfg config.Application, client h.Client) func(w http.Respons
 		log.Printf("processing %s", v.SubscribeURL)
 
 		// validate the URL
-		err = subscription.ValidateURLRegions(v.SubscribeURL, cfg.AllowedRegions)
+		err = subscription.ValidateURL(v.SubscribeURL, cfg.AllowedRegions, cfg.AllowedAccounts)
 		if err != nil {
 			log.Printf("validation failed: %s\n", err)
 			w.WriteHeader(http.StatusInternalServerError)
