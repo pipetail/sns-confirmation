@@ -19,7 +19,7 @@ func main() {
 	client := http.Client{}
 
 	r := mux.NewRouter()
-	r.HandleFunc("/", handlers.DefaultHandler(cfg, &client))
+	r.PathPrefix("/").HandlerFunc(handlers.DefaultHandler(cfg, &client))
 
 	fmt.Printf("Starting server at port 8080\n")
 	if err := http.ListenAndServe(":8080", r); err != nil {
